@@ -66,6 +66,95 @@
       }
     }
 
+    function getRandomChunk(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateSplits() {
+      const upiId = document.getElementById('upiId').value.trim();
+      const payeeName = encodeURIComponent(document.getElementById('payeeName').value.trim());
+      const totalAmount = parseFloat(document.getElementById('totalAmount').value);
+      const container = document.getElementById('linksContainer');
+      
+      container.innerHTML = '';
+      if (!upiId || !totalAmount || totalAmount <= 0) {
+        alert("Please enter a valid UPI ID and amount.");
+        return;
+      }
+
+      let remaining = totalAmount;
+      let index = 1;
+
+      while (remaining > 0) {
+        let chunkSize;
+
+        if (currentMode === 'fixed') {
+          chunkSize = Math.min(remaining, 1999);
+        } else {
+          let randomVal = getRandomChunk(1599, 1959);
+          if (remaining < 1599) {
+            chunkSize = remaining;
+          } else {
+            chunkSize = Math.min(remaining, randomVal);
+          }
+        }
+
+        const currentAmount = chunkSize.toFixed(2);
+        const upiUri = `upi://pay?pa=${upiId}&pn=${payeeName}&am=${currentAmount}&cu=INR`;
+        const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(upiUri)}&size=150`;
+
+        const card = document.createElement('div');
+        card.className = "p-3 border rounded-lg flex justify-between items-center bg-gray-50";
+        card.innerHTML = `
+          <div>
+            <p class="font-bold text-gray-800">Chunk #${index}: ₹${currentAmount}</p>
+            <a href="${upiUri}" class="text-xs text-blue-600 underline">Pay via UPI App</a>
+          </div>
+          <img src="${qrUrl}" alt="QR Code" class="w-16 h-16 rounded border">
+        `;
+        
+        container.appendChild(card);
+        remaining -= chunkSize;
+        index++;
+      }
+
+      document.getElementById('results').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
+            Random (₹1,599 - ₹1,959)
+          </button>
+        </div>
+      </div>
+
+      <button onclick="generateSplits()" class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition">Generate QR Codes</button>
+    </div>
+
+    <!-- Output List -->
+    <div id="results" class="mt-6 space-y-3 hidden">
+      <h2 class="text-lg font-semibold text-gray-700">Generated UPI Links</h2>
+      <div id="linksContainer" class="space-y-2"></div>
+    </div>
+  </div>
+
+  <script>
+    let currentMode = 'fixed';
+
+    function setMode(mode) {
+      currentMode = mode;
+      const btnFixed = document.getElementById('btnFixed');
+      const btnRandom = document.getElementById('btnRandom');
+
+      if (mode === 'fixed') {
+        btnFixed.className = "py-2 border rounded-lg font-medium text-sm bg-blue-600 text-white transition";
+        btnRandom.className = "py-2 border rounded-lg font-medium text-sm bg-gray-200 text-gray-700 transition";
+      } else {
+        btnRandom.className = "py-2 border rounded-lg font-medium text-sm bg-blue-600 text-white transition";
+        btnFixed.className = "py-2 border rounded-lg font-medium text-sm bg-gray-200 text-gray-700 transition";
+      }
+    }
+
     // Returns a random integer between min and max (inclusive)
     function getRandomChunk(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
