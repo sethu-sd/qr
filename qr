@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart UPI Splitter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+  <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4 text-center">UPI Payment Splitter</h1>
+    
+    <!-- Inputs -->
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">UPI ID (VPA)</label>
+        <input type="text" id="upiId" placeholder="example@upi" class="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Payee Name</label>
+        <input type="text" id="payeeName" placeholder="Merchant Name" class="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Total Amount (₹)</label>
+        <input type="number" id="totalAmount" placeholder="e.g. 12899" class="w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+      </div>
+
+      <!-- Mode Selector Buttons -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Splitting Mode</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" id="btnFixed" onclick="setMode('fixed')" class="py-2 border rounded-lg font-medium text-sm bg-blue-600 text-white transition">
+            Fixed (₹1,999)
+          </button>
+          <button type="button" id="btnRandom" onclick="setMode('random')" class="py-2 border rounded-lg font-medium text-sm bg-gray-200 text-gray-700 transition">
+            Random (₹1,599 - ₹1,959)
+          </button>
+        </div>
+      </div>
+
+      <button onclick="generateSplits()" class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition">Generate QR Codes</button>
+    </div>
+
+    <!-- Output List -->
+    <div id="results" class="mt-6 space-y-3 hidden">
+      <h2 class="text-lg font-semibold text-gray-700">Generated UPI Links</h2>
+      <div id="linksContainer" class="space-y-2"></div>
+    </div>
+  </div>
+
+  <script>
+    let currentMode = 'fixed';
+
+    function setMode(mode) {
+      currentMode = mode;
+      const btnFixed = document.getElementById('btnFixed');
+      const btnRandom = document.getElementById('btnRandom');
+
+      if (mode === 'fixed') {
+        btnFixed.className = "py-2 border rounded-lg font-medium text-sm bg-blue-600 text-white transition";
+        btnRandom.className = "py-2 border rounded-lg font-medium text-sm bg-gray-200 text-gray-700 transition";
+      } else {
+        btnRandom.className = "py-2 border rounded-lg font-medium text-sm bg-blue-600 text-white transition";
+        btnFixed.className = "py-2 border rounded-lg font-medium text-sm bg-gray-200 text-gray-700 transition";
+      }
+    }
+
+    // Returns a random integer between min and max (inclusive)
+    function getRandomChunk(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateSplits() {
+      const upiId = document.getElementById('upiId').value.trim();
+      const payeeName = encodeURIComponent(document.getElementById('payeeName').value.trim());
+      const totalAmount = parseFloat(document.getElementById('totalAmount').value);
+      const container = document.getElementById('linksContainer');
+      
+      container.innerHTML = '';
+      if (!upiId || !totalAmount || totalAmount <= 0) {
+        alert("Please enter a valid UPI ID and amount.");
+        return;
+      }
+
+      let remaining = totalAmount;
+      let index = 1;
+
+      while (remaining > 0) {
+        let chunkSize;
+
+        if (currentMode === 'fixed') {
+          chunkSize = Math.min(remaining, 1999);
+        } else {
+          // Select random amount between 1599 and 1959
+          let randomVal = getRandomChunk(1599, 1959);
+          
+          // If the remaining balance is smaller than the lower bound (1599), use the rest
+          if (remaining < 1599) {
+            chunkSize = remaining;
+          } else {
+            chunkSize = Math.min(remaining, randomVal);
+          }
+        }
+
+        const currentAmount = chunkSize.toFixed(2);
+        const upiUri = `upi://pay?pa=${upiId}&pn=${payeeName}&am=${currentAmount}&cu=INR`;
+        const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(upiUri)}&size=150`;
+
+        const card = document.createElement('div');
+        card.className = "p-3 border rounded-lg flex justify-between items-center bg-gray-50";
+        card.innerHTML = `
+          <div>
+            <p class="font-bold text-gray-800">Chunk #${index}: ₹${currentAmount}</p>
+            <a href="${upiUri}" class="text-xs text-blue-600 underline">Pay via UPI App</a>
+          </div>
+          <img src="${qrUrl}" alt="QR Code" class="w-16 h-16 rounded border">
+        `;
+        
+        container.appendChild(card);
+        remaining -= chunkSize;
+        index++;
+      }
+
+      document.getElementById('results').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
