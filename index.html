@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart UPI Splitter & Scanner</title>
+  <title>Smart UPI Splitter & Real-Time Calculator</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
@@ -16,12 +16,12 @@
   <!-- Main Splitter Card -->
   <div class="bg-white p-5 rounded-2xl shadow-xl w-full max-w-sm border border-gray-200 relative">
     
-    <!-- Top Header & Calculator Button -->
+    <!-- Top Header & Calculator Toggle -->
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-xl font-bold text-gray-800">UPI Payment Hub</h1>
-      <button onclick="toggleCalc()" class="bg-gray-900 text-white p-2 rounded-xl hover:bg-gray-700 transition flex items-center gap-1.5 text-xs font-semibold shadow-md">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-        Calc
+      <button onclick="toggleCalc()" class="bg-gray-900 text-white px-3 py-2 rounded-xl hover:bg-gray-700 transition flex items-center gap-1.5 text-xs font-semibold shadow-md">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+        Calculator
       </button>
     </div>
     
@@ -75,78 +75,60 @@
     </div>
   </div>
 
-  <!-- Multi-Feature Auto-Saving Pop-up Calculator Drawer -->
-  <div id="calcModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 hidden backdrop-blur-sm">
-    <div class="bg-black text-white w-full max-w-xs rounded-3xl p-4 shadow-2xl border border-gray-800 flex flex-col justify-between">
-      
-      <!-- Top Bar: Science Toggle & Close -->
-      <div class="flex justify-between items-center text-xs text-gray-400 mb-1">
-        <button onclick="toggleScientific()" class="hover:text-white transition font-mono">Sci Mode</button>
-        <div class="flex gap-2">
-          <button onclick="clearCalcHistory()" class="hover:text-red-400 transition">Clear History</button>
-          <button onclick="toggleCalc()" class="text-gray-400 hover:text-white font-bold text-base px-1">✕</button>
-        </div>
-      </div>
-
-      <!-- Display Screen -->
-      <div class="text-right py-2 px-1">
-        <div id="calcHistory" class="calc-history text-xs text-gray-400 h-10 overflow-y-auto space-y-1 font-mono"></div>
-        <div id="calcExpression" class="text-xs text-orange-400 h-4 font-mono"></div>
-        <div id="calcDisplay" class="text-4xl font-light tracking-tight truncate my-1">0</div>
-      </div>
-
-      <!-- Memory Strip -->
-      <div class="grid grid-cols-4 gap-1 mb-2 text-xs text-gray-400 font-semibold text-center">
-        <button onclick="calcMem('MC')" class="py-1 hover:text-white">MC</button>
-        <button onclick="calcMem('MR')" class="py-1 hover:text-white">MR</button>
-        <button onclick="calcMem('M+')" class="py-1 hover:text-white">M+</button>
-        <button onclick="calcMem('M-')" class="py-1 hover:text-white">M-</button>
-      </div>
-
-      <!-- Scientific Panel -->
-      <div id="sciPanel" class="grid grid-cols-4 gap-1.5 mb-2 hidden">
-        <button onclick="calcInput('Math.sin(')" class="bg-gray-800 py-2 rounded-lg text-xs hover:bg-gray-700">sin</button>
-        <button onclick="calcInput('Math.cos(')" class="bg-gray-800 py-2 rounded-lg text-xs hover:bg-gray-700">cos</button>
-        <button onclick="calcInput('Math.tan(')" class="bg-gray-800 py-2 rounded-lg text-xs hover:bg-gray-700">tan</button>
-        <button onclick="calcInput('Math.sqrt(')" class="bg-gray-800 py-2 rounded-lg text-xs hover:bg-gray-700">√</button>
-        <button onclick="calcInput('Math.log10(')" class="bg-gray-800 py-2 rounded-lg text-xs hover:bg-gray-700">log</button>
-        <button onclick="calcInput('Math.log(')" class="bg-gray-800 py-2 rounded-lg text-xs hover:bg-gray-700">ln</button>
-        <button onclick="calcInput('Math.PI')" class="bg-gray-800 py-2 rounded-lg text-xs hover:bg-gray-700">π</button>
-        <button onclick="calcInput('**')" class="bg-gray-800 py-2 rounded-lg text-xs hover:bg-gray-700">x^y</button>
-      </div>
-
-      <!-- Main Keypad Grid -->
-      <div class="grid grid-cols-4 gap-2 text-lg font-medium">
-        <button onclick="calcClear()" class="bg-gray-400 text-black py-3 rounded-full hover:bg-gray-300">AC</button>
-        <button onclick="calcToggleSign()" class="bg-gray-400 text-black py-3 rounded-full hover:bg-gray-300">±</button>
-        <button onclick="calcInput('%')" class="bg-gray-400 text-black py-3 rounded-full hover:bg-gray-300">%</button>
-        <button onclick="calcInput('/')" class="bg-orange-500 text-white py-3 rounded-full hover:bg-orange-400">÷</button>
-
-        <button onclick="calcInput('7')" class="bg-gray-800 text-white py-3 rounded-full hover:bg-gray-700">7</button>
-        <button onclick="calcInput('8')" class="bg-gray-800 text-white py-3 rounded-full hover:bg-gray-700">8</button>
-        <button onclick="calcInput('9')" class="bg-gray-800 text-white py-3 rounded-full hover:bg-gray-700">9</button>
-        <button onclick="calcInput('*')" class="bg-orange-500 text-white py-3 rounded-full hover:bg-orange-400">×</button>
-
-        <button onclick="calcInput('4')" class="bg-gray-800 text-white py-3 rounded-full hover:bg-gray-700">4</button>
-        <button onclick="calcInput('5')" class="bg-gray-800 text-white py-3 rounded-full hover:bg-gray-700">5</button>
-        <button onclick="calcInput('6')" class="bg-gray-800 text-white py-3 rounded-full hover:bg-gray-700">6</button>
-        <button onclick="calcInput('-')" class="bg-orange-500 text-white py-3 rounded-full hover:bg-orange-400">-</button>
-
-        <button onclick="calcInput('1')" class="bg-gray-800 text-white py-3 rounded-full hover:bg-gray-700">1</button>
-        <button onclick="calcInput('2')" class="bg-gray-800 text-white py-3 rounded-full hover:bg-gray-700">2</button>
-        <button onclick="calcInput('3')" class="bg-gray-800 text-white py-3 rounded-full hover:bg-gray-700">3</button>
-        <button onclick="calcInput('+')" class="bg-orange-500 text-white py-3 rounded-full hover:bg-orange-400">+</button>
-
-        <button onclick="calcInput('0')" class="bg-gray-800 text-white py-3 rounded-full col-span-2 pl-6 text-left hover:bg-gray-700">0</button>
-        <button onclick="calcInput('.')" class="bg-gray-800 text-white py-3 rounded-full hover:bg-gray-700">.</button>
-        <button onclick="calcEqual()" class="bg-orange-500 text-white py-3 rounded-full hover:bg-orange-400">=</button>
-      </div>
-
-      <!-- Sync Result Button -->
-      <button onclick="transferResultToApp()" class="w-full mt-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold py-2.5 rounded-xl transition">
-        Use Result in App
+  <!-- Full-Screen Real-Time Calculator Overlay -->
+  <div id="calcModal" class="fixed inset-0 bg-black z-50 flex flex-col justify-between p-6 hidden">
+    
+    <!-- Top Controls: History & Close -->
+    <div class="flex justify-between items-center text-sm text-gray-400 border-b border-gray-800 pb-3">
+      <button onclick="toggleHistoryView()" class="flex items-center gap-2 hover:text-white transition font-medium">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        History Log
       </button>
+      <button onclick="toggleCalc()" class="text-gray-400 hover:text-white font-bold text-2xl px-2">✕</button>
     </div>
+
+    <!-- Displays Screen -->
+    <div class="text-right my-auto py-4">
+      <!-- Scrollable History Container -->
+      <div id="calcHistory" class="calc-history text-sm text-gray-400 max-h-40 overflow-y-auto space-y-2 font-mono mb-2 hidden border-b border-gray-800 pb-2"></div>
+      <!-- Expression Input -->
+      <div id="calcExpression" class="text-xl text-gray-400 font-mono tracking-wide min-h-[28px] break-words"></div>
+      <!-- Real-Time Output -->
+      <div id="calcDisplay" class="text-5xl md:text-6xl font-light text-white tracking-tight truncate my-2">0</div>
+    </div>
+
+    <!-- Keypad Grid (Full Screen Mobile Layout with Parentheses) -->
+    <div class="grid grid-cols-4 gap-3 text-2xl font-medium max-w-md mx-auto w-full">
+      <button onclick="calcClear()" class="bg-gray-700 text-red-400 py-4 rounded-2xl hover:bg-gray-600 active:scale-95 transition">AC</button>
+      <button onclick="calcInput('(')" class="bg-gray-800 text-blue-400 py-4 rounded-2xl hover:bg-gray-700 active:scale-95 transition">(</button>
+      <button onclick="calcInput(')')" class="bg-gray-800 text-blue-400 py-4 rounded-2xl hover:bg-gray-700 active:scale-95 transition">)</button>
+      <button onclick="calcInput('/')" class="bg-orange-500 text-white py-4 rounded-2xl hover:bg-orange-400 active:scale-95 transition">÷</button>
+
+      <button onclick="calcInput('7')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">7</button>
+      <button onclick="calcInput('8')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">8</button>
+      <button onclick="calcInput('9')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">9</button>
+      <button onclick="calcInput('*')" class="bg-orange-500 text-white py-4 rounded-2xl hover:bg-orange-400 active:scale-95 transition">×</button>
+
+      <button onclick="calcInput('4')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">4</button>
+      <button onclick="calcInput('5')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">5</button>
+      <button onclick="calcInput('6')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">6</button>
+      <button onclick="calcInput('-')" class="bg-orange-500 text-white py-4 rounded-2xl hover:bg-orange-400 active:scale-95 transition">-</button>
+
+      <button onclick="calcInput('1')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">1</button>
+      <button onclick="calcInput('2')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">2</button>
+      <button onclick="calcInput('3')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">3</button>
+      <button onclick="calcInput('+')" class="bg-orange-500 text-white py-4 rounded-2xl hover:bg-orange-400 active:scale-95 transition">+</button>
+
+      <button onclick="calcInput('0')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">0</button>
+      <button onclick="calcInput('.')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">.</button>
+      <button onclick="calcBackspace()" class="bg-gray-800 text-white py-4 rounded-2xl hover:bg-gray-700 active:scale-95 transition">⌫</button>
+      <button onclick="commitCalculation()" class="bg-emerald-600 text-white py-4 rounded-2xl hover:bg-emerald-500 active:scale-95 transition">=</button>
+    </div>
+
+    <!-- Sync Result Button -->
+    <button onclick="transferResultToApp()" class="w-full max-w-md mx-auto mt-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3.5 rounded-2xl transition text-base">
+      Use Result in UPI App
+    </button>
   </div>
 
   <script>
@@ -193,7 +175,6 @@
       }
     }
 
-    // Parse scanned QR code into form fields
     function parseUPIString(qrData) {
       try {
         if (qrData.startsWith("upi://pay")) {
@@ -206,16 +187,16 @@
           if (pn) document.getElementById('payeeName').value = decodeURIComponent(pn);
           if (am) document.getElementById('totalAmount').value = am;
 
-          alert("Scanned! UPI ID and Payee details loaded. Enter an amount to split or pay.");
+          alert("Scanned! UPI details populated.");
         } else {
-          alert("Scanned QR is not a valid UPI code.");
+          alert("Invalid UPI QR code.");
         }
       } catch (e) {
-        alert("Failed to read QR code.");
+        alert("Failed to parse QR code.");
       }
     }
 
-    // --- Splitter & Generator Logic ---
+    // --- Splitter Logic ---
     function getRandomChunk(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -237,15 +218,13 @@
       let index = 1;
 
       if (splitMode === 'full') {
-        // Full Single Payment Mode
         createPaymentCard(container, 1, totalAmount.toFixed(2), upiId, payeeName);
       } else {
-        // Split Mode
         while (remaining > 0) {
           let chunkSize;
           if (splitMode === 'fixed') {
             chunkSize = Math.min(remaining, 1999);
-          } else { // Random (₹1,599 – ₹1,959)
+          } else {
             let randomVal = getRandomChunk(1599, 1959);
             chunkSize = (remaining < 1599) ? remaining : Math.min(remaining, randomVal);
           }
@@ -285,110 +264,100 @@
       container.appendChild(card);
     }
 
-    // --- Calculator Engine ---
+    // --- Real-Time Calculator Engine ---
     let calcExpr = localStorage.getItem('calcExpr') || "";
-    let memoryVal = parseFloat(localStorage.getItem('calcMemoryVal')) || 0;
     let historyArr = JSON.parse(localStorage.getItem('calcHistoryArr') || "[]");
 
     window.addEventListener('DOMContentLoaded', () => {
-      updateCalcDisplay();
+      evaluateRealtime();
       renderHistory();
     });
-
-    function autoSaveCalc() {
-      localStorage.setItem('calcExpr', calcExpr);
-      localStorage.setItem('calcMemoryVal', memoryVal.toString());
-      localStorage.setItem('calcHistoryArr', JSON.stringify(historyArr));
-    }
 
     function toggleCalc() {
       document.getElementById('calcModal').classList.toggle('hidden');
     }
 
-    function toggleScientific() {
-      document.getElementById('sciPanel').classList.toggle('hidden');
+    function toggleHistoryView() {
+      document.getElementById('calcHistory').classList.toggle('hidden');
     }
 
     function calcInput(val) {
-      if (calcExpr === "0" && !isNaN(val)) calcExpr = "";
       calcExpr += val;
-      updateCalcDisplay();
-      autoSaveCalc();
+      evaluateRealtime();
+    }
+
+    function calcBackspace() {
+      calcExpr = calcExpr.slice(0, -1);
+      evaluateRealtime();
     }
 
     function calcClear() {
       calcExpr = "";
-      document.getElementById('calcExpression').innerText = "";
-      updateCalcDisplay();
-      autoSaveCalc();
+      evaluateRealtime();
     }
 
-    function calcToggleSign() {
-      if (calcExpr) {
-        calcExpr = calcExpr.startsWith('-') ? calcExpr.substring(1) : '-' + calcExpr;
-        updateCalcDisplay();
-        autoSaveCalc();
+    // Real-Time Evaluation without requiring '=' button
+    function evaluateRealtime() {
+      document.getElementById('calcExpression').innerText = calcExpr || "";
+      
+      if (!calcExpr) {
+        document.getElementById('calcDisplay').innerText = "0";
+        localStorage.setItem('calcExpr', "");
+        return;
       }
+
+      try {
+        const formatted = calcExpr.replace(/×/g, '*').replace(/÷/g, '/');
+        const result = eval(formatted);
+        
+        if (result !== undefined && !isNaN(result)) {
+          document.getElementById('calcDisplay').innerText = result;
+        }
+      } catch (e) {
+        // Keep previous valid result or show 0 on syntax error during typing
+      }
+      
+      localStorage.setItem('calcExpr', calcExpr);
     }
 
-    function updateCalcDisplay() {
-      document.getElementById('calcDisplay').innerText = calcExpr || "0";
+    // Commit calculation manually to History
+    function commitCalculation() {
+      try {
+        const formatted = calcExpr.replace(/×/g, '*').replace(/÷/g, '/');
+        const result = eval(formatted);
+        if (result !== undefined && !isNaN(result)) {
+          const entry = `${calcExpr} = ${result}`;
+          historyArr.push(entry);
+          localStorage.setItem('calcHistoryArr', JSON.stringify(historyArr));
+          renderHistory();
+          calcExpr = result.toString();
+          evaluateRealtime();
+        }
+      } catch (e) {}
     }
 
     function renderHistory() {
       const historyDiv = document.getElementById('calcHistory');
       historyDiv.innerHTML = "";
-      historyArr.forEach(item => {
+      historyArr.slice().reverse().forEach(item => {
         const entry = document.createElement('div');
+        entry.className = "hover:text-white cursor-pointer transition";
         entry.innerText = item;
+        entry.onclick = () => {
+          calcExpr = item.split(' = ')[1];
+          evaluateRealtime();
+        };
         historyDiv.appendChild(entry);
       });
-      historyDiv.scrollTop = historyDiv.scrollHeight;
-    }
-
-    function calcEqual() {
-      try {
-        if (!calcExpr) return;
-        const formattedExpr = calcExpr.replace(/%/g, '/100');
-        const result = eval(formattedExpr);
-        
-        const logEntry = `${calcExpr} = ${result}`;
-        historyArr.push(logEntry);
-        renderHistory();
-
-        document.getElementById('calcExpression').innerText = calcExpr + " =";
-        calcExpr = result.toString();
-        updateCalcDisplay();
-        autoSaveCalc();
-      } catch (e) {
-        document.getElementById('calcDisplay').innerText = "Error";
-        calcExpr = "";
-        autoSaveCalc();
-      }
-    }
-
-    function calcMem(action) {
-      const currentNum = parseFloat(calcExpr) || 0;
-      if (action === 'MC') memoryVal = 0;
-      if (action === 'MR') { calcExpr = memoryVal.toString(); updateCalcDisplay(); }
-      if (action === 'M+') memoryVal += currentNum;
-      if (action === 'M-') memoryVal -= currentNum;
-      autoSaveCalc();
-    }
-
-    function clearCalcHistory() {
-      historyArr = [];
-      renderHistory();
-      autoSaveCalc();
     }
 
     function transferResultToApp() {
-      const val = parseFloat(calcExpr);
+      const val = parseFloat(document.getElementById('calcDisplay').innerText);
       if (!isNaN(val) && val > 0) {
         document.getElementById('totalAmount').value = val;
         toggleCalc();
       } else {
-        alert("Perform a valid calculation first.");
+        alert("Enter a valid calculation.");
       }
     }
   </script>
