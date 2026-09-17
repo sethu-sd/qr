@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart UPI Splitter & Real-Time Calculator</title>
+  <title>UPI Payment Splitter</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
@@ -11,74 +11,103 @@
     .calc-history::-webkit-scrollbar-thumb { background: #4B5563; border-radius: 4px; }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-3 relative">
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-3 relative font-sans text-gray-800">
 
-  <!-- Main Splitter Card -->
-  <div class="bg-white p-5 rounded-2xl shadow-xl w-full max-w-sm border border-gray-200 relative">
-    
-    <!-- Top Header & Calculator Toggle -->
-    <div class="flex justify-between items-center mb-4">
-      <h1 class="text-xl font-bold text-gray-800">UPI Payment Hub</h1>
-      <button onclick="toggleCalc()" class="bg-gray-900 text-white px-3 py-2 rounded-xl hover:bg-gray-700 transition flex items-center gap-1.5 text-xs font-semibold shadow-md">
+  <div class="w-full max-w-sm space-y-4">
+
+    <!-- Top Action Bar (Calculator & Scanner Buttons) -->
+    <div class="flex gap-2">
+      <button onclick="toggleScanner()" id="scanBtn" class="flex-1 bg-emerald-600 text-white py-2 px-3 rounded-xl text-xs font-semibold hover:bg-emerald-700 transition flex items-center justify-center gap-1.5 shadow-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        Scan QR Code
+      </button>
+      <button onclick="toggleCalc()" class="bg-gray-900 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-gray-700 transition flex items-center justify-center gap-1.5 shadow-sm">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-        Calculator
+        Calc
       </button>
     </div>
-    
-    <!-- Camera Scanner Section -->
-    <div class="mb-4">
-      <button id="scanBtn" onclick="toggleScanner()" class="w-full bg-emerald-600 text-white py-2.5 px-3 rounded-lg font-medium text-sm hover:bg-emerald-700 transition flex items-center justify-center gap-2 shadow-sm">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-        Scan QR Code with Camera
-      </button>
-      <div id="reader" class="mt-3 rounded-lg overflow-hidden hidden border border-gray-300"></div>
-    </div>
 
-    <!-- Inputs -->
-    <div class="space-y-3">
+    <!-- Hidden Camera Scanner Viewfinder -->
+    <div id="reader" class="rounded-2xl overflow-hidden hidden border border-gray-300 bg-black"></div>
+
+    <!-- Main Input Card (Matching UI Screenshot) -->
+    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200/80 space-y-4">
       <div>
-        <label class="block text-xs font-semibold text-gray-600">UPI ID (VPA)</label>
-        <input type="text" id="upiId" placeholder="example@upi" class="w-full mt-1 p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-gray-600">Payee Name</label>
-        <input type="text" id="payeeName" placeholder="Merchant Name" class="w-full mt-1 p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-gray-600">Enter Total Amount (₹)</label>
-        <input type="number" id="totalAmount" placeholder="e.g. 12899" class="w-full mt-1 p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+        <label class="block text-xs font-medium text-gray-500 mb-1">UPI ID (VPA)</label>
+        <input type="text" id="upiId" placeholder="e.g. merchant@upi" class="w-full p-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition">
       </div>
 
-      <!-- Mode Selector -->
       <div>
-        <label class="block text-xs font-semibold text-gray-600 mb-1">Payment Method</label>
-        <select id="splitMode" class="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white font-medium text-gray-700">
-          <option value="random">Split Randomly (₹1,599 – ₹1,959)</option>
-          <option value="fixed">Split Fixed (₹1,999 Max)</option>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Payee Name</label>
+        <input type="text" id="payeeName" placeholder="e.g. Store Name" class="w-full p-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition">
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Total Amount (₹)</label>
+        <input type="number" id="totalAmount" oninput="updateSummaryDisplay()" placeholder="0.00" class="w-full p-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition">
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Payment Note <span class="text-gray-400 font-normal">Optional</span></label>
+        <input type="text" id="paymentNote" placeholder="e.g. Invoice 001" class="w-full p-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition">
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Splitting Method</label>
+        <select id="splitMode" onchange="updateSummaryDisplay()" class="w-full p-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-white font-medium text-gray-700">
+          <option value="random">Random Chunks (₹1,599 – ₹1,959)</option>
+          <option value="fixed">Fixed Chunks (Up to ₹1,999)</option>
           <option value="full">Pay Full Amount (Single QR)</option>
         </select>
       </div>
 
-      <!-- Action Button -->
-      <button onclick="generateSplits()" class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold text-sm hover:bg-blue-700 transition mt-2">
-        Generate Payment QR(s)
+      <button onclick="generateSplits()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-semibold text-sm transition shadow-sm flex items-center justify-center gap-2">
+        Generate QR codes <span>→</span>
       </button>
+
+      <div class="text-center text-[11px] text-gray-400 flex items-center justify-center gap-1 pt-1">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+        Payment details never leave your browser.
+      </div>
     </div>
 
-    <!-- Results Section -->
-    <div id="results" class="mt-5 space-y-3 hidden">
-      <div class="flex items-center justify-between border-b pb-2">
-        <h2 class="text-sm font-bold text-gray-800">Ready to Pay</h2>
-        <span id="totalChunksBadge" class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-medium"></span>
+    <!-- Payment Summary Block (Matching Screenshot Design) -->
+    <div class="pt-2">
+      <h2 class="text-sm font-bold text-gray-900 mb-2">Payment summary</h2>
+      
+      <div class="space-y-1">
+        <span class="text-xs text-gray-500">Total to collect</span>
+        <div id="summaryTotal" class="text-3xl font-extrabold text-gray-900 tracking-tight">₹0.00</div>
       </div>
-      <div id="linksContainer" class="space-y-3"></div>
+
+      <div class="flex items-center justify-between border-t border-gray-200 mt-4 pt-3 text-xs">
+        <span class="text-gray-500">QR codes</span>
+        <span id="summaryRule" class="font-semibold text-gray-800">Up to ₹1,999</span>
+      </div>
     </div>
+
+    <!-- Generated QR Container / Placeholder Card -->
+    <div id="resultsContainer">
+      <div id="placeholderCard" class="bg-white rounded-2xl p-8 text-center border border-gray-200/80 shadow-sm mt-4">
+        <div class="w-12 h-12 bg-indigo-50 text-indigo-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+        </div>
+        <h3 class="font-semibold text-gray-800 text-sm mb-1">Collect every part of the payment</h3>
+        <p id="placeholderDesc" class="text-xs text-gray-500 max-w-xs mx-auto">Generate QR codes of ₹1,999 or less. Your customer pays each code to cover the full amount.</p>
+      </div>
+
+      <div id="qrList" class="space-y-3 mt-4 hidden"></div>
+    </div>
+
+    <!-- Footer Text (Matching Screenshot) -->
+    <div class="text-center text-[11px] text-gray-400 pt-4 pb-6 space-y-1">
+      <p>Just for laughs. Not recommended for actual use. We're not lawyers, and this isn't legal advice.</p>
+    </div>
+
   </div>
 
-  <!-- Full-Screen Real-Time Calculator Overlay -->
+  <!-- Full-Screen Real-Time Calculator -->
   <div id="calcModal" class="fixed inset-0 bg-black z-50 flex flex-col justify-between p-6 hidden">
-    
-    <!-- Top Controls: History & Close -->
     <div class="flex justify-between items-center text-sm text-gray-400 border-b border-gray-800 pb-3">
       <button onclick="toggleHistoryView()" class="flex items-center gap-2 hover:text-white transition font-medium">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -87,37 +116,32 @@
       <button onclick="toggleCalc()" class="text-gray-400 hover:text-white font-bold text-2xl px-2">✕</button>
     </div>
 
-    <!-- Displays Screen -->
     <div class="text-right my-auto py-4">
-      <!-- Scrollable History Container -->
       <div id="calcHistory" class="calc-history text-sm text-gray-400 max-h-40 overflow-y-auto space-y-2 font-mono mb-2 hidden border-b border-gray-800 pb-2"></div>
-      <!-- Expression Input -->
       <div id="calcExpression" class="text-xl text-gray-400 font-mono tracking-wide min-h-[28px] break-words"></div>
-      <!-- Real-Time Output -->
       <div id="calcDisplay" class="text-5xl md:text-6xl font-light text-white tracking-tight truncate my-2">0</div>
     </div>
 
-    <!-- Keypad Grid (Full Screen Mobile Layout with Parentheses) -->
     <div class="grid grid-cols-4 gap-3 text-2xl font-medium max-w-md mx-auto w-full">
       <button onclick="calcClear()" class="bg-gray-700 text-red-400 py-4 rounded-2xl hover:bg-gray-600 active:scale-95 transition">AC</button>
-      <button onclick="calcInput('(')" class="bg-gray-800 text-blue-400 py-4 rounded-2xl hover:bg-gray-700 active:scale-95 transition">(</button>
-      <button onclick="calcInput(')')" class="bg-gray-800 text-blue-400 py-4 rounded-2xl hover:bg-gray-700 active:scale-95 transition">)</button>
-      <button onclick="calcInput('/')" class="bg-orange-500 text-white py-4 rounded-2xl hover:bg-orange-400 active:scale-95 transition">÷</button>
+      <button onclick="calcInput('(')" class="bg-gray-800 text-indigo-400 py-4 rounded-2xl hover:bg-gray-700 active:scale-95 transition">(</button>
+      <button onclick="calcInput(')')" class="bg-gray-800 text-indigo-400 py-4 rounded-2xl hover:bg-gray-700 active:scale-95 transition">)</button>
+      <button onclick="calcInput('/')" class="bg-indigo-600 text-white py-4 rounded-2xl hover:bg-indigo-500 active:scale-95 transition">÷</button>
 
       <button onclick="calcInput('7')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">7</button>
       <button onclick="calcInput('8')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">8</button>
       <button onclick="calcInput('9')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">9</button>
-      <button onclick="calcInput('*')" class="bg-orange-500 text-white py-4 rounded-2xl hover:bg-orange-400 active:scale-95 transition">×</button>
+      <button onclick="calcInput('*')" class="bg-indigo-600 text-white py-4 rounded-2xl hover:bg-indigo-500 active:scale-95 transition">×</button>
 
       <button onclick="calcInput('4')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">4</button>
       <button onclick="calcInput('5')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">5</button>
       <button onclick="calcInput('6')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">6</button>
-      <button onclick="calcInput('-')" class="bg-orange-500 text-white py-4 rounded-2xl hover:bg-orange-400 active:scale-95 transition">-</button>
+      <button onclick="calcInput('-')" class="bg-indigo-600 text-white py-4 rounded-2xl hover:bg-indigo-500 active:scale-95 transition">-</button>
 
       <button onclick="calcInput('1')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">1</button>
       <button onclick="calcInput('2')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">2</button>
       <button onclick="calcInput('3')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">3</button>
-      <button onclick="calcInput('+')" class="bg-orange-500 text-white py-4 rounded-2xl hover:bg-orange-400 active:scale-95 transition">+</button>
+      <button onclick="calcInput('+')" class="bg-indigo-600 text-white py-4 rounded-2xl hover:bg-indigo-500 active:scale-95 transition">+</button>
 
       <button onclick="calcInput('0')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">0</button>
       <button onclick="calcInput('.')" class="bg-gray-900 text-white py-4 rounded-2xl hover:bg-gray-800 active:scale-95 transition">.</button>
@@ -125,8 +149,7 @@
       <button onclick="commitCalculation()" class="bg-emerald-600 text-white py-4 rounded-2xl hover:bg-emerald-500 active:scale-95 transition">=</button>
     </div>
 
-    <!-- Sync Result Button -->
-    <button onclick="transferResultToApp()" class="w-full max-w-md mx-auto mt-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3.5 rounded-2xl transition text-base">
+    <button onclick="transferResultToApp()" class="w-full max-w-md mx-auto mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3.5 rounded-2xl transition text-base">
       Use Result in UPI App
     </button>
   </div>
@@ -134,7 +157,18 @@
   <script>
     let html5QrCode = null;
 
-    // --- Camera Scanner Logic ---
+    function updateSummaryDisplay() {
+      const val = parseFloat(document.getElementById('totalAmount').value) || 0;
+      document.getElementById('summaryTotal').innerText = `₹${val.toFixed(2)}`;
+      
+      const mode = document.getElementById('splitMode').value;
+      const ruleSpan = document.getElementById('summaryRule');
+      if (mode === 'random') ruleSpan.innerText = '₹1,599 – ₹1,959';
+      else if (mode === 'fixed') ruleSpan.innerText = 'Up to ₹1,999';
+      else ruleSpan.innerText = 'Full Amount';
+    }
+
+    // --- Camera Scanner ---
     function toggleScanner() {
       const readerDiv = document.getElementById('reader');
       const scanBtn = document.getElementById('scanBtn');
@@ -154,7 +188,7 @@
           },
           () => {}
         ).catch(() => {
-          alert("Camera access denied or unavailable.");
+          alert("Camera unavailable.");
           stopScanner();
         });
       } else {
@@ -169,7 +203,7 @@
         html5QrCode.stop().then(() => {
           html5QrCode.clear();
           readerDiv.classList.add('hidden');
-          scanBtn.innerText = "Scan QR Code with Camera";
+          scanBtn.innerText = "Scan QR Code";
           scanBtn.classList.replace('bg-red-600', 'bg-emerald-600');
         }).catch(() => {});
       }
@@ -182,21 +216,26 @@
           const pa = urlParams.get('pa');
           const pn = urlParams.get('pn');
           const am = urlParams.get('am');
+          const tn = urlParams.get('tn');
 
           if (pa) document.getElementById('upiId').value = pa;
           if (pn) document.getElementById('payeeName').value = decodeURIComponent(pn);
-          if (am) document.getElementById('totalAmount').value = am;
+          if (am) {
+            document.getElementById('totalAmount').value = am;
+            updateSummaryDisplay();
+          }
+          if (tn) document.getElementById('paymentNote').value = decodeURIComponent(tn);
 
-          alert("Scanned! UPI details populated.");
+          alert("UPI details loaded!");
         } else {
-          alert("Invalid UPI QR code.");
+          alert("Invalid UPI QR Code.");
         }
       } catch (e) {
         alert("Failed to parse QR code.");
       }
     }
 
-    // --- Splitter Logic ---
+    // --- Generator Logic ---
     function getRandomChunk(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -204,21 +243,26 @@
     function generateSplits() {
       const upiId = document.getElementById('upiId').value.trim();
       const payeeName = encodeURIComponent(document.getElementById('payeeName').value.trim());
+      const note = encodeURIComponent(document.getElementById('paymentNote').value.trim());
       const totalAmount = parseFloat(document.getElementById('totalAmount').value);
       const splitMode = document.getElementById('splitMode').value;
-      const container = document.getElementById('linksContainer');
+      const qrList = document.getElementById('qrList');
+      const placeholderCard = document.getElementById('placeholderCard');
       
-      container.innerHTML = '';
+      qrList.innerHTML = '';
       if (!upiId || !totalAmount || totalAmount <= 0) {
         alert("Please enter a valid UPI ID and Amount.");
         return;
       }
 
+      placeholderCard.classList.add('hidden');
+      qrList.classList.remove('hidden');
+
       let remaining = totalAmount;
       let index = 1;
 
       if (splitMode === 'full') {
-        createPaymentCard(container, 1, totalAmount.toFixed(2), upiId, payeeName);
+        createPaymentCard(qrList, 1, totalAmount.toFixed(2), upiId, payeeName, note);
       } else {
         while (remaining > 0) {
           let chunkSize;
@@ -230,47 +274,47 @@
           }
 
           const currentAmount = chunkSize.toFixed(2);
-          createPaymentCard(container, index, currentAmount, upiId, payeeName);
+          createPaymentCard(qrList, index, currentAmount, upiId, payeeName, note);
           remaining -= chunkSize;
           index++;
         }
       }
-
-      document.getElementById('totalChunksBadge').innerText = splitMode === 'full' ? 'Single Payment' : `${index - 1} QR Code(s)`;
-      document.getElementById('results').classList.remove('hidden');
     }
 
-    function createPaymentCard(container, index, amount, upiId, payeeName) {
-      const upiUri = `upi://pay?pa=${upiId}&pn=${payeeName}&am=${amount}&cu=INR`;
-      const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(upiUri)}&size=160`;
+    function createPaymentCard(container, index, amount, upiId, payeeName, note) {
+      let upiUri = `upi://pay?pa=${upiId}&pn=${payeeName}&am=${amount}&cu=INR`;
+      if (note) upiUri += `&tn=${note}`;
+      
+      const qrUrl = `https://quickchart.io/qr?text=${encodeURIComponent(upiUri)}&size=180`;
 
       const card = document.createElement('div');
-      card.className = "p-3 border rounded-xl bg-gray-50 flex flex-col items-center gap-2 shadow-sm";
+      card.className = "bg-white p-4 rounded-2xl border border-gray-200/80 shadow-sm flex flex-col items-center gap-3";
       card.innerHTML = `
-        <div class="w-full flex justify-between items-center border-b pb-2">
-          <span class="font-bold text-gray-800 text-sm">Payment #${index}</span>
-          <span class="font-extrabold text-blue-600 text-base">₹${amount}</span>
+        <div class="w-full flex justify-between items-center border-b border-gray-100 pb-2">
+          <span class="font-bold text-gray-800 text-sm">QR Code #${index}</span>
+          <span class="font-extrabold text-indigo-600 text-base">₹${amount}</span>
         </div>
-        <img src="${qrUrl}" alt="QR Code" class="w-32 h-32 rounded border bg-white p-1 my-1">
-        <div class="w-full flex gap-2 mt-1">
-          <a href="${upiUri}" class="flex-1 bg-blue-600 text-white py-1.5 px-2 rounded-lg text-xs font-medium text-center hover:bg-blue-700 transition">
-            Open App to Pay ₹${amount}
+        <img src="${qrUrl}" alt="QR Code" class="w-36 h-36 rounded-xl border bg-white p-1 my-1">
+        <div class="w-full flex gap-2">
+          <a href="${upiUri}" class="flex-1 bg-indigo-600 text-white py-2 px-3 rounded-xl text-xs font-semibold text-center hover:bg-indigo-700 transition">
+            Pay ₹${amount} via App
           </a>
-          <button onclick="navigator.clipboard.writeText('${upiUri}'); alert('UPI Link copied!')" class="bg-gray-200 text-gray-700 py-1.5 px-2 rounded-lg text-xs font-medium hover:bg-gray-300 transition">
-            Copy
+          <button onclick="navigator.clipboard.writeText('${upiUri}'); alert('UPI Link copied!')" class="bg-gray-100 text-gray-700 py-2 px-3 rounded-xl text-xs font-semibold hover:bg-gray-200 transition">
+            Copy Link
           </button>
         </div>
       `;
       container.appendChild(card);
     }
 
-    // --- Real-Time Calculator Engine ---
+    // --- Calculator Engine ---
     let calcExpr = localStorage.getItem('calcExpr') || "";
     let historyArr = JSON.parse(localStorage.getItem('calcHistoryArr') || "[]");
 
     window.addEventListener('DOMContentLoaded', () => {
       evaluateRealtime();
       renderHistory();
+      updateSummaryDisplay();
     });
 
     function toggleCalc() {
@@ -296,31 +340,23 @@
       evaluateRealtime();
     }
 
-    // Real-Time Evaluation without requiring '=' button
     function evaluateRealtime() {
       document.getElementById('calcExpression').innerText = calcExpr || "";
-      
       if (!calcExpr) {
         document.getElementById('calcDisplay').innerText = "0";
         localStorage.setItem('calcExpr', "");
         return;
       }
-
       try {
         const formatted = calcExpr.replace(/×/g, '*').replace(/÷/g, '/');
         const result = eval(formatted);
-        
         if (result !== undefined && !isNaN(result)) {
           document.getElementById('calcDisplay').innerText = result;
         }
-      } catch (e) {
-        // Keep previous valid result or show 0 on syntax error during typing
-      }
-      
+      } catch (e) {}
       localStorage.setItem('calcExpr', calcExpr);
     }
 
-    // Commit calculation manually to History
     function commitCalculation() {
       try {
         const formatted = calcExpr.replace(/×/g, '*').replace(/÷/g, '/');
@@ -355,6 +391,7 @@
       const val = parseFloat(document.getElementById('calcDisplay').innerText);
       if (!isNaN(val) && val > 0) {
         document.getElementById('totalAmount').value = val;
+        updateSummaryDisplay();
         toggleCalc();
       } else {
         alert("Enter a valid calculation.");
