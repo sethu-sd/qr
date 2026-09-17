@@ -20,11 +20,11 @@
     <!-- Top Action Bar -->
     <div class="flex gap-2">
       <button onclick="toggleScanner()" id="scanBtn" class="flex-1 bg-emerald-600 text-white py-2 px-3 rounded-xl text-xs font-semibold hover:bg-emerald-700 transition flex items-center justify-center gap-1.5 shadow-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 001.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
         Scan QR Code
       </button>
       <button onclick="toggleCalc()" class="bg-gray-900 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-gray-700 transition flex items-center justify-center gap-1.5 shadow-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
         Calc
       </button>
     </div>
@@ -35,13 +35,13 @@
     <!-- Main Input Card -->
     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200/80 space-y-4">
       
-      <!-- UPI ID Field with Handle Suggestions -->
+      <!-- Independent Auto-Suggesting UPI ID Field -->
       <div class="relative">
         <label class="block text-xs font-medium text-gray-500 mb-1">UPI ID (VPA)</label>
-        <input type="text" id="upiId" oninput="handleUpiInput()" placeholder="e.g. 9876543210 or username" class="w-full p-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition" autocomplete="off">
+        <input type="text" id="upiId" oninput="handleUpiInput()" onfocus="handleUpiInput()" placeholder="e.g. 9876543210 or username" class="w-full p-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition" autocomplete="off">
         
-        <!-- Autocomplete Suggestions Popup -->
-        <div id="upiSuggestions" class="autocomplete-list absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-30 max-h-40 overflow-y-auto hidden"></div>
+        <!-- Handle List Dropdown Container -->
+        <div id="upiSuggestions" class="autocomplete-list absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-30 max-h-48 overflow-y-auto hidden"></div>
       </div>
 
       <!-- Payee Name Field -->
@@ -166,9 +166,21 @@
 
   <script>
     let html5QrCode = null;
-    const upiHandles = ['@oksbi', '@okaxis', '@ybl', '@paytm', '@ibl', '@axl', '@barodampay', '@pnb', '@postbank'];
 
-    // --- UPI ID Handle Auto-Suggestion Logic ---
+    // Full Provided Handles List
+    const upiHandles = [
+      'abfspay', 'airtel', 'allbank', 'apl', 'aubank', 'axl', 'axis', 'axisb', 'axisbank',
+      'bandhan', 'barodampay', 'barodapay', 'barodamp', 'bob', 'bpunity', 'canarabank',
+      'cnrb', 'centralbank', 'citi', 'citigold', 'dbs', 'dlb', 'fam', 'federal', 'fifederal',
+      'fkaxis', 'freecharge', 'hdfc', 'hdfcbank', 'hsbc', 'ibl', 'icici', 'idbi', 'ikwik',
+      'indie', 'indus', 'indianbank', 'inhdfc', 'jarunity', 'jio', 'jupiteraxis', 'kbl',
+      'kotak', 'kotak811', 'naviaxis', 'okaxis', 'okhdfcbank', 'okicici', 'oksbi', 'oneyes',
+      'paytm', 'pnb', 'ptaxis', 'pthdfc', 'ptsbi', 'ptyes', 'pz', 'rapl', 'sbi', 'sib',
+      'sliceaxis', 'slicepay', 'slc', 'superyes', 'tapicici', 'trans', 'uco', 'upi',
+      'waicici', 'yapl', 'ybl', 'yescred', 'yescurie', 'yesfam', 'yesg', 'zoicici'
+    ];
+
+    // --- Dynamic Auto-Suggestion Handler ---
     function handleUpiInput() {
       const input = document.getElementById('upiId');
       const container = document.getElementById('upiSuggestions');
@@ -179,29 +191,30 @@
         return;
       }
 
-      let base = val;
-      let filter = "";
+      let username = val;
+      let filterText = "";
 
       if (val.includes('@')) {
         const parts = val.split('@');
-        base = parts[0];
-        filter = '@' + parts[1];
+        username = parts[0];
+        filterText = parts[1].toLowerCase();
       }
 
-      const matching = upiHandles.filter(h => h.startsWith(filter));
+      // Filter matching handles dynamically
+      const matches = upiHandles.filter(h => h.toLowerCase().startsWith(filterText));
 
-      if (matching.length === 0 || !base) {
+      if (matches.length === 0 || !username) {
         container.classList.add('hidden');
         return;
       }
 
       container.innerHTML = '';
-      matching.forEach(handle => {
+      matches.forEach(handle => {
         const item = document.createElement('div');
         item.className = "px-3 py-2 text-xs font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer transition border-b border-gray-100 last:border-none";
-        item.innerText = `${base}${handle}`;
+        item.innerText = `${username}@${handle}`;
         item.onclick = () => {
-          input.value = `${base}${handle}`;
+          input.value = `${username}@${handle}`;
           container.classList.add('hidden');
         };
         container.appendChild(item);
@@ -210,7 +223,6 @@
       container.classList.remove('hidden');
     }
 
-    // Close suggestions dropdown when clicking outside
     document.addEventListener('click', (e) => {
       const suggestions = document.getElementById('upiSuggestions');
       const input = document.getElementById('upiId');
